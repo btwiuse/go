@@ -2991,7 +2991,7 @@ func splitTextSections(ctxt *Link) bool {
 // to store command line args and environment variables.
 // Data sections starts from at least address 12288.
 // Keep in sync with wasm_exec.js.
-const wasmMinDataAddr = 4096 + 8192
+const wasmMinDataAddr = 131072 // 128K
 
 // address assigns virtual addresses to all segments and sections and
 // returns all segments in file order.
