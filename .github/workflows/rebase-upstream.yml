@@ -1,0 +1,50 @@
+name: Rebase onto Go Upstream
+
+on:
+  schedule:
+    - cron: '0 */6 * * *'  # every 6 hours
+  workflow_dispatch:
+
+jobs:
+  rebase:
+    runs-on: ubuntu-latest
+
+    steps:
+      - uses: actions/checkout@v4
+        with:
+          ref: master
+          fetch-depth: 0
+
+      - name: Set Git user
+        run: |
+          git config user.name "github-actions[bot]"
+          git config user.email "github-actions[bot]@users.noreply.github.com"
+
+      - name: Add upstream remote
+        run: |
+          git remote add upstream https://github.com/golang/go.git
+          git fetch upstream master
+
+      - name: Attempt rebase
+        id: rebase
+        run: |
+          if git rebase upstream/master; then
+            echo "REBASE_FAILED=false" >> "$GITHUB_ENV"
+          else
+            echo "REBASE_FAILED=true" >> "$GITHUB_ENV"
+            git rebase --abort
+          fi
+
+      - name: Check if HEAD changed
+        id: head
+        run: |
+          git fetch origin master
+          if [ "$(git rev-parse HEAD)" != "$(git rev-parse origin/master)" ]; then
+            echo "UPDATED=true" >> "$GITHUB_ENV"
+          else
+            echo "UPDATED=false" >> "$GITHUB_ENV"
+          fi
+
+      - name: Push rebased master
+        if: env.REBASE_FAILED == 'false' && env.UPDATED == 'true'
+        run: git push origin master --force
