@@ -95,6 +95,7 @@ func Open(path string, openmode int, perm uint32) (int, error) {
 	if openmode&O_SYNC != 0 {
 		return 0, errors.New("syscall.Open: O_SYNC is not supported by js/wasm")
 	}
+	openmode &^= O_DIRECTORY
 	if openmode&O_DIRECTORY != 0 {
 		if nodeDIRECTORY != -1 {
 			flags |= nodeDIRECTORY
