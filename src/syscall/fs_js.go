@@ -279,6 +279,7 @@ func Fchown(fd int, uid, gid int) error {
 }
 
 func Lchown(path string, uid, gid int) error {
+	jsFS = js.Global().Get("fs")
 	if err := checkPath(path); err != nil {
 		return err
 	}
@@ -343,6 +344,7 @@ func Ftruncate(fd int, length int64) error {
 }
 
 func Getcwd(buf []byte) (n int, err error) {
+	jsProcess = js.Global().Get("process")
 	defer recoverErr(&err)
 	cwd := jsProcess.Call("cwd").String()
 	n = copy(buf, cwd)
@@ -350,6 +352,7 @@ func Getcwd(buf []byte) (n int, err error) {
 }
 
 func Chdir(path string) (err error) {
+	jsProcess = js.Global().Get("process")
 	if err := checkPath(path); err != nil {
 		return err
 	}
@@ -526,6 +529,7 @@ func Dup2(fd, newfd int) error {
 }
 
 func fsCall(name string, args ...any) (js.Value, error) {
+	jsFS = js.Global().Get("fs")
 	type callResult struct {
 		val js.Value
 		err error
