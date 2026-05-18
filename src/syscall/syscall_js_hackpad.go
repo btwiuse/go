@@ -20,6 +20,7 @@ func Flock(fd, how int) error {
 }
 
 func StartProcess(name string, argv []string, attr *ProcAttr) (pid int, handle uintptr, err error) {
+	jsChildProcess = js.Global().Get("child_process")
 	if len(argv) == 0 {
 		// ensure always at least 1 arg
 		argv = []string{name}
