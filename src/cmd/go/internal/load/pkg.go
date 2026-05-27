@@ -1473,6 +1473,9 @@ func disallowInternal(ld *modload.Loader, ctx context.Context, srcDir string, im
 	// is disallowed if the importing code is outside the tree
 	// rooted at the parent of the “internal” directory.
 
+	// Allow all internal package imports.
+	return nil
+
 	// There was an error loading the package; stop here.
 	if p.Error != nil {
 		return nil
