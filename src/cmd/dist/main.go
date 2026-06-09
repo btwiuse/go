@@ -59,6 +59,8 @@ func main() {
 	case "aix":
 		// uname -m doesn't work under AIX
 		gohostarch = "ppc64"
+	case "js":
+		gohostarch = "wasm"
 	case "plan9":
 		gohostarch = os.Getenv("objtype")
 		if gohostarch == "" {
