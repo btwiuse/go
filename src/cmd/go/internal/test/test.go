@@ -17,6 +17,7 @@ import (
 	"os/exec"
 	"path/filepath"
 	"regexp"
+	"runtime"
 	"slices"
 	"strconv"
 	"strings"
@@ -42,6 +43,10 @@ import (
 // Break init loop.
 func init() {
 	CmdTest.Run = runTest
+	if runtime.GOOS == "js" {
+		// Vet SSA analysis hangs in js/wasm sub-processes.
+		testVet = vetFlag{off: true}
+	}
 }
 
 const testUsage = "go test [build/test flags] [packages] [build/test flags & test binary flags]"
