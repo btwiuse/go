@@ -158,6 +158,19 @@ func childProcessCall(name string, args ...interface{}) (js.Value, error) {
 	return res.val, res.err
 }
 
+func Kill(pid int, signum Signal) error {
+	proc := js.Global().Get("process")
+	if proc.IsUndefined() {
+		return ENOSYS
+	}
+	killFn := proc.Get("kill")
+	if killFn.IsUndefined() {
+		return ENOSYS
+	}
+	killFn.Invoke(pid, int(signum))
+	return nil
+}
+
 func splitEnvPairs(pairs []string) map[string]interface{} {
 	env := make(map[string]interface{})
 	for _, pair := range pairs {
