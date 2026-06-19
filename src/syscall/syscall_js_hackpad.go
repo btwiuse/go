@@ -22,6 +22,57 @@ func Flock(fd, how int) error {
 }
 
 func StartProcess(name string, argv []string, attr *ProcAttr) (pid int, handle uintptr, err error) {
+	if js.Global().Get("hackpad").Truthy() {
+		return startHackpadProcess(name, argv, attr)
+	}
+	return startWanixProcess(name, argv, attr)
+}
+
+func startHackpadProcess(name string, argv []string, attr *ProcAttr) (pid int, handle uintptr, err error) {
+	jsChildProcess = js.Global().Get("child_process")
+	if len(argv) == 0 {
+		// ensure always at least 1 arg
+		argv = []string{name}
+	}
+	jsArgs := make([]interface{}, 0, len(argv)-1) // JS args don't include the command name
+	for _, arg := range argv[1:] {
+		jsArgs = append(jsArgs, arg)
+	}
+
+	cwd := attr.Dir
+	if cwd == "" {
+		cwd, err = Getwd()
+		if err != nil {
+			return 0, 0, err
+		}
+	}
+	var env map[string]interface{}
+	if attr.Env != nil {
+		env = splitEnvPairs(attr.Env)
+	} else {
+		env = splitEnvPairs(Environ())
+	}
+
+	var fds []interface{}
+	for _, f := range attr.Files {
+		fds = append(fds, f)
+	}
+
+	ret := jsChildProcess.Call("spawn", name, jsArgs, map[string]interface{}{
+		"argv0": argv[0],
+		"cwd":   attr.Dir,
+		"env":   env,
+		"stdio": fds,
+	})
+	pid = ret.Get("pid").Int()
+	jsErr := ret.Get("error")
+	if jsErr.Type() == js.TypeObject {
+		err = js.Error{jsErr}
+	}
+	return pid, 0, err
+}
+
+func startWanixProcess(name string, argv []string, attr *ProcAttr) (pid int, handle uintptr, err error) {
 	jsChildProcess = js.Global().Get("child_process")
 	if len(argv) == 0 {
 		// ensure always at least 1 arg
