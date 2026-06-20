@@ -284,7 +284,11 @@ func SetGOROOT(goroot string, isTestGo bool) {
 			// This matches the initialization of ToolDir in go/build, except for
 			// using ctxt.GOROOT and the installed GOOS and GOARCH rather than the
 			// GOROOT, GOOS, and GOARCH reported by the runtime package.
-			build.ToolDir = filepath.Join(GOROOTpkg, "tool", installedGOOS+"_"+installedGOARCH)
+			if s := os.Getenv("GOTOOLDIR"); s != "" {
+				build.ToolDir = filepath.Clean(s)
+			} else {
+				build.ToolDir = filepath.Join(GOROOTpkg, "tool", installedGOOS+"_"+installedGOARCH)
+			}
 		}
 	}
 }
