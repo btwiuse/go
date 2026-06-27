@@ -83,7 +83,22 @@ func TestGeneratedFilesUpToDate(t *testing.T) {
 		// verify that the generated file has the expected header
 		// (this should cause other failures later, but if this is
 		// the problem, diagnose it here to shorten the treasure hunt.)
-		if bytes.HasPrefix(contents, genPrefix) {
+// Skip leading build constraint lines (//go:build, // +build, and blank lines).
+		trimmed := contents
+		for {
+			if bytes.HasPrefix(trimmed, []byte("//go:build")) || bytes.HasPrefix(trimmed, []byte("// +build")) {
+				end := bytes.IndexByte(trimmed, '\n')
+				if end < 0 {
+					break
+				}
+				trimmed = trimmed[end+1:]
+			} else if len(trimmed) > 0 && trimmed[0] == '\n' {
+				trimmed = trimmed[1:]
+			} else {
+				break
+			}
+		}
+		if bytes.HasPrefix(trimmed, genPrefix) {
 			genFiles[mustRel(wd, f)] = true
 		}
 	}
@@ -161,7 +176,22 @@ func TestGeneratedFilesUpToDate(t *testing.T) {
 		}
 
 		// and the contents of that file should match.
-		if !bytes.Equal(originalData, generatedData) {
+		// Strip any leading build constraint from the original (may have been added manually).
+		origTrimmed := originalData
+		for {
+			if bytes.HasPrefix(origTrimmed, []byte("//go:build")) || bytes.HasPrefix(origTrimmed, []byte("// +build")) {
+				end := bytes.IndexByte(origTrimmed, '\n')
+				if end < 0 {
+					break
+				}
+				origTrimmed = origTrimmed[end+1:]
+			} else if len(origTrimmed) > 0 && origTrimmed[0] == '\n' {
+				origTrimmed = origTrimmed[1:]
+			} else {
+				break
+			}
+		}
+		if !bytes.Equal(origTrimmed, generatedData) {
 			t.Errorf("%s is out of date. Please run 'go generate'.", filename)
 		}
 		return nil
