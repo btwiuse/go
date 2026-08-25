@@ -233,3 +233,10 @@ func (vs *VectorSize) DecodeUnified(v *unify.Value) error {
 
 	return fmt.Errorf("bits must be an integer or \"scalable\"")
 }
+
+func (vs *VectorSize) EncodeUnified() *unify.Value {
+	if vs.Scalable {
+		return unify.NewValue(unify.NewStringExact("scalable"))
+	}
+	return unify.NewValue(unify.NewStringExact(fmt.Sprint(vs.N())))
+}
