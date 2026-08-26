@@ -7,6 +7,7 @@ package types
 import (
 	"cmp"
 	"fmt"
+	"regexp"
 	"simd/archsimd/_gen/specgen/specexpr"
 	"simd/archsimd/_gen/unify"
 )
@@ -75,12 +76,15 @@ const MaxVectorBits = 256
 type Operand struct {
 	Class string // One of "mask", "immediate", "vreg", "greg", and "mem"
 
-	Go     *string // Go type of this operand
-	AsmPos int     // Position of this operand in the assembly instruction
+	Go *string // Go type of this operand
 
-	Base     *string    // Base Go type ("int", "uint", "float")
-	ElemBits *int       // Element bit width (omitted for greg)
-	Bits     VectorSize // Total bit width, or scalable
+	AsmPos int // Position of this operand in the assembly instruction
+
+	Base       *string // Base Go type ("int", "uint", "float")
+	EncodeBase *regexp.Regexp
+	ElemBits   *int       // Element bit width (omitted for greg)
+	Bits       VectorSize // Total bit width, or scalable
+	EncodeBits *VectorSize
 
 	Const *string // Optional constant value for immediates.
 	// Optional immediate arg offsets. If this field is non-nil,
