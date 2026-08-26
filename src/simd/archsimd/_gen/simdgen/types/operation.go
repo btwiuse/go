@@ -74,7 +74,7 @@ type RawOperation struct {
 const MaxVectorBits = 256
 
 type Operand struct {
-	Class string // One of "mask", "immediate", "vreg", "greg", and "mem"
+	Class string // One of "mask", "immediate", "vreg", "greg", "mem", "reglist", and "special"
 
 	Go *string // Go type of this operand
 
@@ -206,9 +206,9 @@ func (o Operand) OpNameAndType(s string) string {
 func (o Operand) Compare(p Operand) int {
 	priority := func(o Operand) int {
 		switch o.Class {
-		case "immediate", "mem":
+		case "immediate", "mem", "special":
 			return 0
-		case "vreg", "greg":
+		case "vreg", "greg", "reglist":
 			return 1
 		case "mask":
 			return 2
