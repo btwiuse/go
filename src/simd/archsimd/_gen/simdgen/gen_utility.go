@@ -291,7 +291,7 @@ func (op *Operation) regShape(mem memShape) (string, error) {
 			gRegInCnt++
 		case "mask":
 			kMaskInCnt++
-		case "memory":
+		case "mem":
 			if mem != VregMemIn {
 				panic("simdgen only knows VregMemIn in regShape")
 			}
@@ -310,7 +310,7 @@ func (op *Operation) regShape(mem memShape) (string, error) {
 			gRegOutCnt++
 		} else if out.Class == "mask" {
 			kMaskOutCnt++
-		} else if out.Class == "memory" {
+		} else if out.Class == "mem" {
 			if mem != VregMemIn {
 				panic("simdgen only knows VregMemIn in regShape")
 			}
@@ -656,7 +656,7 @@ func rewriteLastVregToMem(op Operation) Operation {
 	if lastVregIdx == -1 {
 		panic("simdgen cannot find one vreg in the mem op vreg original")
 	}
-	newIn[lastVregIdx].Class = "memory"
+	newIn[lastVregIdx].Class = "mem"
 	op.In = newIn
 
 	return op
