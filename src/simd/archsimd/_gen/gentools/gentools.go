@@ -31,7 +31,6 @@ import (
 	"go/format"
 	"go/scanner"
 	"go/token"
-	"internal/diff"
 	"io"
 	"io/fs"
 	"os"
@@ -269,7 +268,7 @@ func (f *Files) Flush() error {
 				return fmt.Errorf("reading %s for diff: %w", pf.relPath, err)
 			}
 			srcPath := filepath.Join("src", pf.relPath)
-			d := diff.Diff(srcPath, onDisk, srcPath, pf.content)
+			d := Diff(srcPath, onDisk, srcPath, pf.content)
 			if len(d) > 0 {
 				hasDiffs = true
 				opts.Output.Write(d)
